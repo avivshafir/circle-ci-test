@@ -1,19 +1,62 @@
 version: 2.1
 
-orbs:
-  slack: circleci/slack@3.4.2
+commands:
+  publish_slack_message:
+    description: "Publish a message to a slack channel"
+    parameters:
+      slack_webhook_url:
+        type: string
+      message:
+        type: string
+      topic:
+        type: string
+      failure_message:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Slacking - << parameters.topic >>
+          command: |
+            MESSAGE="<< parameters.message >>"
+            echo MESSAGE
+            curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<< parameters.message >>\"}" "<< parameters.slack_webhook_url >>"
+          when: on_success
+      - run:
+          name: Slacking - Failure << parameters.topic >>
+          command: |
+            if [ -n '<< parameters.failure_message >>' ]; then
+              curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<< parameters.failure_message >>\"}" "<< parameters.slack_webhook_url >>"
+            fi
+          when: on_fail
+          
+references:
+    deploy: &deploy
+    parameters:
+      slack_webhook_url:
+        type: string
+      slack_env:
+        type: string
+    steps:
+      - run:
+          name: Deploy
+          command: echo "hello world"
+      - publish_slack_message:
+          slack_webhook_url: << parameters.slack_webhook_url >>
+          message: successfully deployed
+          failure_message: successfully deployed
+
+#:white_check_mark: *'"$CIRCLE_USERNAME"'* <'"$CIRCLE_BUILD_URL"'|successfully deployed> *'"$CIRCLE_PROJECT_REPONAME"'* version *'"${IMAGE_TAG}"'* from *'"$CIRCLE_BRANCH"'* to `'"$ENV_NAME"'`"
 
 jobs:
   build:
     docker: 
       - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
-    environment:
-      SLACK_WEBHOOK: https://hooks.slack.com/services/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
     steps:
       - checkout # check out the code in the project directory
       - run: echo "hello world" # run the `echo` command
-      - slack/status:
-          include_project_field: true
+
+  deploy-prod:
+    <<: *deploy
 
 
           
