@@ -8,10 +8,9 @@ jobs:
     docker: 
       - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
     environment:
-      slack_webhook_url: ${SLACK_API_TEAM_DEPLOY_WEBHOOK}
+      SLACK_WEBHOOK: https://hooks.slack.com/services/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
     steps:
       - checkout # check out the code in the project directory
       - run: echo "hello world" # run the `echo` command
       - slack/status:
           include_project_field: true
-          webhook: << slack_webhook_url >>
