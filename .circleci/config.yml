@@ -8,8 +8,6 @@ commands:
         type: string
       message:
         type: string
-      topic:
-        type: string
       failure_message:
         type: string
         default: ""
@@ -19,7 +17,7 @@ commands:
           command: |
             MESSAGE="<< parameters.message >>"
             echo MESSAGE
-            curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<< parameters.message >>\"}" "<< parameters.slack_webhook_url >>"
+            curl -X POST -H 'Authorization: Bearer '"$SLACK_TOKEN"'' -H 'Content-type: application/json' --data '{"channel":"api-team-deploy", "username":"CircleCI", "text":" :white_check_mark: *'"$CIRCLE_USERNAME"'* <'"$CIRCLE_BUILD_URL"'|successfully deployed> *'"$CIRCLE_PROJECT_REPONAME"'* version *'"${IMAGE_TAG}"'* from *'"$CIRCLE_BRANCH"'* to `'"$ENV_NAME"'`"}' https://slack.com/api/chat.postMessage
           when: on_success
       - run:
           name: Slacking - Failure << parameters.topic >>
@@ -29,22 +27,6 @@ commands:
             fi
           when: on_fail
           
-references:
-    deploy: &deploy
-    parameters:
-      slack_webhook_url:
-        type: string
-      slack_env:
-        type: string
-    steps:
-      - run:
-          name: Deploy
-          command: echo "hello world"
-      - publish_slack_message:
-          slack_webhook_url: << parameters.slack_webhook_url >>
-          message: successfully deployed
-          failure_message: successfully deployed
-
 #:white_check_mark: *'"$CIRCLE_USERNAME"'* <'"$CIRCLE_BUILD_URL"'|successfully deployed> *'"$CIRCLE_PROJECT_REPONAME"'* version *'"${IMAGE_TAG}"'* from *'"$CIRCLE_BRANCH"'* to `'"$ENV_NAME"'`"
 
 jobs:
@@ -54,9 +36,14 @@ jobs:
     steps:
       - checkout # check out the code in the project directory
       - run: echo "hello world" # run the `echo` command
-
-  deploy-prod:
-    <<: *deploy
+  deploy:
+    steps:
+      - run:
+          name: Deploy
+          command: echo "hello world"
+      - publish_slack_message:
+          message: successfully deployed
+          failure_message: successfully deployed
 
 
           
