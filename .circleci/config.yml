@@ -1,12 +1,8 @@
 version: 2.1
-
-commands:
-  my-command:
-    steps:
-      - run: echo "a command is a collection of steps"
-      - run: echo "this command has two steps"
-
 jobs:
-  my-job:
+  build:
+    docker: 
+      - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
     steps:
-      - my-command
+      - checkout # check out the code in the project directory
+      - run: echo "hello world" # run the `echo` command
