@@ -3,6 +3,9 @@ version: 2.1
 orbs:
   slack: circleci/slack@3.4.2
 
+references:
+  slack_webhook_url: ${SLACK_API_TEAM_DEPLOY_WEBHOOK}
+
 jobs:
   build:
     docker: 
@@ -11,5 +14,5 @@ jobs:
       - checkout # check out the code in the project directory
       - run: echo "hello world" # run the `echo` command
       - slack/status:
-        include_project_field: true
-        webhook: ${SLACK_API_TEAM_DEPLOY_WEBHOOK}
+          include_project_field: true
+          webhook: << slack_webhook_url >>
