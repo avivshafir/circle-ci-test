@@ -1,34 +1,5 @@
 version: 2.1
 
-commands:
-  publish_slack_message:
-    description: "Publish a message to a slack channel"
-    parameters:
-      slack_webhook_url:
-        type: string
-      message:
-        type: string
-      failure_message:
-        type: string
-        default: ""
-    steps:
-      - run:
-          name: Slacking - << parameters.topic >>
-          command: |
-            MESSAGE="<< parameters.message >>"
-            echo MESSAGE
-            curl -X POST -H 'Authorization: Bearer '"$SLACK_TOKEN"'' -H 'Content-type: application/json' --data '{"channel":"api-team-deploy", "username":"CircleCI", "text":" :white_check_mark: *'"$CIRCLE_USERNAME"'* <'"$CIRCLE_BUILD_URL"'|successfully deployed> *'"$CIRCLE_PROJECT_REPONAME"'* version *'"${IMAGE_TAG}"'* from *'"$CIRCLE_BRANCH"'* to `'"$ENV_NAME"'`"}' https://slack.com/api/chat.postMessage
-          when: on_success
-      - run:
-          name: Slacking - Failure << parameters.topic >>
-          command: |
-            if [ -n '<< parameters.failure_message >>' ]; then
-              curl -X POST -H "Content-type: application/json" --data "{\"text\":\"<< parameters.failure_message >>\"}" "<< parameters.slack_webhook_url >>"
-            fi
-          when: on_fail
-          
-#:white_check_mark: *'"$CIRCLE_USERNAME"'* <'"$CIRCLE_BUILD_URL"'|successfully deployed> *'"$CIRCLE_PROJECT_REPONAME"'* version *'"${IMAGE_TAG}"'* from *'"$CIRCLE_BRANCH"'* to `'"$ENV_NAME"'`"
-
 jobs:
   build:
     docker: 
@@ -37,15 +8,12 @@ jobs:
       - checkout # check out the code in the project directory
       - run: echo "hello world" # run the `echo` command
   deploy:
-   docker: 
+     docker: 
       - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
     steps:
       - run:
-          name: Deploy
-          command: echo "hello world"
-      - publish_slack_message:
-          message: successfully deployed
-          failure_message: successfully deployed
+          name: Test
+          command: curl -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" -H 'Content-type: application/json' --data '{"channel":"api-team-deploy", "username":"CircleCI", "text":"test"}' https://slack.com/api/chat.postMessage
 
 
           
