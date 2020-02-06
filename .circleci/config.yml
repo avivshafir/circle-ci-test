@@ -7,5 +7,7 @@ jobs:
     steps:
       - checkout # check out the code in the project directory
       - run: echo "hello world" # run the `echo` command
-      - run: |
-        curl -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" -H 'Content-type: application/json' --data '{"channel":"api-team-deploy", "username":"CircleCI", "text":"test"}' https://slack.com/api/chat.postMessage
+      - run:
+          name: Testing
+          command: |
+            curl -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" -H 'Content-type: application/json' --data '{"channel":"api-team-deploy", "username":"CircleCI", "text":"test"}' https://slack.com/api/chat.postMessage
