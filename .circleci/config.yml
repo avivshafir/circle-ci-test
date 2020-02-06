@@ -8,9 +8,10 @@ jobs:
       - checkout # check out the code in the project directory
       - run: echo "hello world" # run the `echo` command
   deploy:
-     docker: 
+    docker: 
       - image: circleci/node:4.8.2 # the primary container, where your job's commands are run
     steps:
       - run:
           name: Test
-          command: curl -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" -H 'Content-type: application/json' --data '{"channel":"api-team-deploy", "username":"CircleCI", "text":"test"}' https://slack.com/api/chat.postMessage
+          command: |
+            curl -X POST -H "Authorization: Bearer ${SLACK_TOKEN}" -H 'Content-type: application/json' --data '{"channel":"api-team-deploy", "username":"CircleCI", "text":"test"}' https://slack.com/api/chat.postMessage
